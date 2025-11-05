@@ -1,0 +1,59 @@
+Assignments :
+
+Basic Problems
+
+1. Given two inputs that are stored in variables a and n, you need to print a, n times in a single line without space between them. Output must have a newline at the end.
+2. Given three inputs that are stored in the variables a, b, and c. You need to print a a times and b b times  in a single line separated by c.
+3. You need to perform three separate tasks based on the given input:
+String Input and Print: Take a text input as a string and print it as it is.
+Integer Input and Add: Take an integer input n, add 10 to it, and print the result.
+Float Input and Multiply: Take a floating-point number as input, multiply it by 10, and print the result.
+4. You are given two integer variables x and y. You need to perform the following operations:
+
+p = x + y : Addition
+q = x - y : Subtraction
+r = x * y :Multiplication
+s = x / y : Division
+t = x % y : Modulo
+
+5. Given two numbers a and b, you need to swap their values so a holds the value of b and b holds the value of a. Just write the code to swap values of a and b at the specified place.
+
+Functions
+1. This problem has no input. You need to write the function helloFunction that prints Hello.
+2. Here two integers a and b are given. The given input and its values are passed as arguments to the function argumentFunction. The argumentFunction is responsible to return (a+b). You need to write this function.
+3. Given a number n, find the first digit of the number.
+
+
+List
+1.Create a list that contains integers. You need to return the sum of the list.
+2. You are given a number k and a list arr[] that contains integers. You need to return list of numbers that are less than k.
+Example
+Input: arr[] = [54, 43, 2, 1, 5], k = 6
+Output: 2 1 5
+Explanation: 2 1 5 are less than 6.
+3. You are given a list arr that contains integers. You need to return average of the non negative integers.
+Examples:
+Input: arr = [-12, 8, -7, 6, 12, -9, 14]
+Output: avg = 10.0
+Explanation: The non negative numbers are 8 6 12 14. The sum is 8+6+12+14 = 40, Average = 40/4 = 10.0
+
+String
+1. Given a string s, you need to reverse it.
+2. Given a string s, you need to check if it is palindrome or not. A palidrome is a string that reads the same from front and back.
+3. Given a string s, and a pattern p. You need to find if p exists in s or not and return the starting index of p in s. If p does not exist in s then -1 will be returned.
+Here p and s both are case-sensitive.
+
+Examples:
+Input: s = "Hello", p = "llo"
+Output: 2
+Explanation: llo starts from the second index in Hello.
+
+Dictionary
+1.Given an array arr[], find the first repeating element. The element should occur more than once and the index of its first occurrence should be the smallest.
+Examples:
+Input: arr[] = [1, 5, 3, 4, 3, 5, 6]
+Output: 2
+Explanation: 5 appears twice and its first appearance is at index 2 which is less than 3 whose first the occurring index is 3.
+
+Set
+1. You are given an array arr[] of size n. You have to insert all elements of arr[] into a set and return that set .You are also given a interger x. If x is found in set then erase it from set and print "erased x", otherwise, print "not found".
