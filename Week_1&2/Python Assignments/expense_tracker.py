@@ -268,7 +268,7 @@ def show_summary():
 
     print(f"Total between {start_date} and {end_date}: ${range_total:.2f}")
 
-# --- Main Application ---
+# --- assignments.switch_practice Application ---
 
 def print_menu():
     """Displays the main menu options."""
