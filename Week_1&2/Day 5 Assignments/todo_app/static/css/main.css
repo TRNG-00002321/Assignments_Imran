@@ -1,0 +1,109 @@
+/* ------------------ TOKENS ------------------ */
+:root{
+  --bg: #0b0c10;
+  --panel: #111218;
+  --panel-2: #161823;
+  --text: #e8ecf1;
+  --muted: #9aa3ad;
+  --primary: #5b8eff;
+  --primary-600:#3f73f2;
+  --danger:#ff6363;
+  --danger-600:#ef5252;
+  --ring: 0 0 0 3px rgba(91,142,255,.25);
+  --radius: 14px;
+  --shadow: 0 10px 30px rgba(0,0,0,.25);
+}
+
+@media (prefers-color-scheme: light){
+  :root{
+    --bg:#f6f7fb; --panel:#ffffff; --panel-2:#f3f4f8;
+    --text:#0f1222; --muted:#556070; --shadow:0 10px 22px rgba(16,24,40,.08);
+  }
+}
+
+/* ------------------ BASE ------------------ */
+*{ box-sizing:border-box }
+html,body{ height:100% }
+body.page{
+  margin:0;
+  background:linear-gradient(180deg, var(--bg), #0e1117);
+  color:var(--text);
+  font: 16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
+}
+
+/* ------------------ LAYOUT ------------------ */
+.container{
+  max-width: 780px;
+  margin: clamp(20px, 5vw, 56px) auto;
+  padding: 0 20px;
+}
+
+.header{ margin-bottom: 18px }
+.title{ margin:0 0 4px; font-weight: 800; letter-spacing:.2px }
+.subtitle{ margin:0; color:var(--muted); font-size:.95rem }
+
+/* ------------------ CARDS ------------------ */
+.card{
+  background: linear-gradient(180deg, var(--panel), var(--panel-2));
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 14px;
+  border: 1px solid rgba(255,255,255,.06);
+  margin-bottom: 14px;
+}
+.card--empty{ text-align:center }
+
+/* ------------------ FORMS ------------------ */
+.form--inline{ display:flex; gap:10px; align-items:center }
+.input{
+  width:100%; padding:12px 14px; border-radius: 12px;
+  border:1px solid rgba(255,255,255,.08); background:#0c0f16; color:var(--text);
+}
+.input--lg{ font-size:1rem }
+.input:focus{ outline:none; box-shadow: var(--ring); border-color:transparent }
+
+/* ------------------ BUTTONS ------------------ */
+.btn{
+  display:inline-flex; align-items:center; justify-content:center;
+  border:0; border-radius: 12px; padding:10px 14px; font-weight:600;
+  transition: transform .06s ease, filter .15s ease;
+  color:#fff;
+}
+.btn:active{ transform: translateY(1px) }
+
+.btn--primary{ background: linear-gradient(180deg,var(--primary),var(--primary-600)) }
+.btn--primary:hover{ filter: brightness(1.05) }
+
+.btn--ghost{
+  background: transparent; color: var(--text);
+  border:1px solid rgba(255,255,255,.12);
+}
+.btn--ghost:hover{ background: rgba(255,255,255,.06) }
+
+.btn--danger{ background: linear-gradient(180deg,var(--danger),var(--danger-600)) }
+
+/* ------------------ LIST ------------------ */
+.list{ list-style:none; padding:0; margin:0; }
+.list__item{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:12px; padding:12px 14px; margin:10px 0;
+  background: linear-gradient(180deg, var(--panel), var(--panel-2));
+  border-radius: 12px; border:1px solid rgba(255,255,255,.06);
+}
+
+.task{ display:flex; gap:10px; align-items:center }
+.task__status{
+  display:inline-grid; place-items:center;
+  width:28px; height:28px; border-radius:8px;
+  background: rgba(255,255,255,.06);
+  font-weight:700;
+}
+.task__title{ font-weight:600; letter-spacing:.2px }
+.task--done .task__title{ text-decoration: line-through; opacity:.55 }
+.muted{ color:var(--muted) }
+
+/* ------------------ RESPONSIVE ------------------ */
+@media (max-width:600px){
+  .form--inline{ flex-direction:column; align-items:stretch }
+  .actions{ display:flex; gap:8px }
+}

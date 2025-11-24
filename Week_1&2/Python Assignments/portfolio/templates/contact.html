@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Simple Portfolio - Contact</title>
+    <!-- Basic inline CSS for a simple look -->
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; color: #333; }
+        .container { width: 80%; margin: 20px auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
+        .nav { background-color: #333; overflow: hidden; }
+        .nav a { float: left; display: block; color: white; text-align: center; padding: 14px 16px; text-decoration: none; }
+        .nav a:hover { background-color: #555; color: white; }
+        h1 { color: #555; }
+        label { display: block; margin-top: 10px; font-weight: bold; }
+        input[type="text"], input[type="email"], textarea { width: 100%; padding: 8px; margin-top: 5px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        input[type="submit"] { background-color: #555; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; margin-top: 10px; }
+        input[type="submit"]:hover { background-color: #777; }
+    </style>
+</head>
+<body>
+<div class="nav">
+    <a href="/">Home</a>
+    <a href="/projects">Projects</a>
+    <a href="/contact">Contact</a>
+</div>
+<div class="container">
+    <h1>Contact Me</h1>
+    <p>You can use the form below to get in touch.</p>
+
+    <form action="#" method="POST">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required>
+
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+
+        <label for="message">Message:</label>
+        <textarea id="message" name="message" rows="5" required></textarea>
+
+        <input type="submit" value="Send Message">
+    </form>
+
+    <p style="margin-top: 20px;">(This form is static and does not send data, but it demonstrates the HTML structure.)</p>
+
+</div>
+</body>
+</html>

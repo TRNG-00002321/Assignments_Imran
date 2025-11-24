@@ -1,0 +1,17 @@
+[
+    {
+        "name": "john",
+        "age": "19",
+        "city": "chichago"
+    },
+    {
+        "name": "jason",
+        "age": "12",
+        "city": "dallas"
+    },
+    {
+        "name": "john",
+        "age": "932",
+        "city": "plano"
+    }
+]

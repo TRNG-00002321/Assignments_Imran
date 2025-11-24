@@ -1,0 +1,20 @@
+[
+  {
+    "title": "Expense Tracker CLI",
+    "description": "A command-line application built with Python for tracking personal expenses, storing data in a CSV file.",
+    "technologies": ["Python", "CSV", "CLI"],
+    "year": 2024
+  },
+  {
+    "title": "Simple Quiz App",
+    "description": "A basic interactive quiz game that loads questions from a JSON file and tracks the user's score.",
+    "technologies": ["Python", "JSON"],
+    "year": 2024
+  },
+  {
+    "title": "Task List Web App",
+    "description": "A front-end web application for managing daily tasks using HTML, CSS, and basic JavaScript.",
+    "technologies": ["HTML", "CSS", "JavaScript"],
+    "year": 2023
+  }
+]

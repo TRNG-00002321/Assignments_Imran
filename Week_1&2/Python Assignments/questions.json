@@ -1,0 +1,18 @@
+[
+  {
+    "question": "What is the capital of Canada?",
+    "answer": "Ottawa"
+  },
+  {
+    "question": "What primary programming language is used to build Flask applications?",
+    "answer": "Python"
+  },
+  {
+    "question": "How many days are in a leap year?",
+    "answer": "366"
+  },
+  {
+    "question": "What color is a polar bear's skin?",
+    "answer": "Black"
+  }
+]
