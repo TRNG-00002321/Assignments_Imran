@@ -19,10 +19,10 @@ def configure_logging():
 def main():
     configure_logging()
     logger.info("Employee app starting")
-    db.load_data()
+    db.init_db()
 
     while True:
-        if db.USERS:
+        if db.users_exist():
             login_success = auth.login()
             if login_success:
                 logger.info("Entering employee menu")

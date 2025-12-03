@@ -1,6 +1,4 @@
 import logging
-import time
-import uuid
 
 import auth
 import db
@@ -8,13 +6,10 @@ import db
 logger = logging.getLogger(__name__)
 
 
-def get_current_user_expenses():
-    user_expenses = []
-    for expense in db.EXPENSES:
-        if expense['user_id'] == auth.CURRENT_USER_ID:
-            user_expenses.append(expense)
-    logger.debug("Found %d expenses for user %s", len(user_expenses), auth.CURRENT_USER_ID)
-    return user_expenses
+def get_current_user_expenses(status=None):
+    expenses = db.list_expenses_by_user(auth.CURRENT_USER_ID, status=status)
+    logger.debug("Found %d expenses for user %s (status=%s)", len(expenses), auth.CURRENT_USER_ID, status)
+    return expenses
 
 
 def print_expense_list(expense_list):
@@ -22,21 +17,24 @@ def print_expense_list(expense_list):
         print("\n  >>> No expenses found. <<<")
         return
 
-    print("\n----------------------------------------------------------------------------------")
-    print(f"| {'NUM':<3} | {'ID':<8} | {'Amount':<8} | {'Date':<10} | {'Status':<10} | {'Description':<20} |")
-    print("----------------------------------------------------------------------------------")
+    print("\n--------------------------------------------------------------------------------------------------------")
+    print(f"| {'NUM':<3} | {'ID':<8} | {'Amount':<8} | {'Date':<10} | {'Status':<10} | {'Category':<12} | {'Description':<20} |")
+    print("--------------------------------------------------------------------------------------------------------")
 
-    for i in range(len(expense_list)):
-        e = expense_list[i]
-        index = i + 1
-
+    for i, e in enumerate(expense_list, start=1):
         desc_preview = e['description']
         if len(desc_preview) > 20:
-            desc_preview = desc_preview[:17] + '...'
+            desc_preview = desc_preview[:17] + "..."
 
-        print(f"| {index:<3} | {e['id'][:8]:<8} | ${e['amount']:<7.2f} | {e['date']:<10} | {e['status']:<10} | {desc_preview:<20} |")
+        cat_preview = e.get('category') or "Uncategorized"
+        if len(cat_preview) > 12:
+            cat_preview = cat_preview[:9] + "..."
 
-    print("----------------------------------------------------------------------------------")
+        print(
+            f"| {i:<3} | {e['id'][:8]:<8} | ${e['amount']:<7.2f} | {e['date']:<10} | {e['status']:<10} | {cat_preview:<12} | {desc_preview:<20} |"
+        )
+
+    print("--------------------------------------------------------------------------------------------------------")
 
 
 def submit_new_expense():
@@ -61,23 +59,18 @@ def submit_new_expense():
             break
         print("Description cannot be empty. Please enter a description.")
 
-    new_expense = {
-        'id': str(uuid.uuid4()),
-        'user_id': auth.CURRENT_USER_ID,
-        'amount': amount,
-        'description': description,
-        'date': time.strftime("%Y-%m-%d"),
-        'status': 'pending',
-        'reviewer': None,
-        'comment': None,
-        'review_date': None,
-    }
+    while True:
+        category = input("Enter category (e.g., Travel, Meals, Office): ").strip()
+        if category:
+            break
+        print("Category cannot be empty. Please enter a category.")
 
-    db.EXPENSES.append(new_expense)
-    print(f"\n✅ Expense submitted successfully! ID: {new_expense['id'][:8]}")
+    expense_id = db.insert_expense(auth.CURRENT_USER_ID, amount, description, category)
+
+    print(f"\n-> Expense submitted successfully! ID: {expense_id[:8]}")
     logger.info(
         "Submitted new expense %s for user %s amount %.2f",
-        new_expense['id'],
+        expense_id,
         auth.CURRENT_USER_ID,
         amount,
     )
@@ -85,12 +78,7 @@ def submit_new_expense():
 
 def view_expense_status():
     print("\n--- PENDING EXPENSES ---")
-
-    pending_expenses = []
-    for expense in get_current_user_expenses():
-        if expense['status'] == 'pending':
-            pending_expenses.append(expense)
-
+    pending_expenses = get_current_user_expenses(status="pending")
     print_expense_list(pending_expenses)
     logger.info("Displayed %d pending expenses", len(pending_expenses))
 
@@ -98,10 +86,10 @@ def view_expense_status():
 def view_history():
     print("\n--- APPROVED/DENIED HISTORY ---")
 
-    history = []
-    for expense in get_current_user_expenses():
-        if expense['status'] in ('approved', 'denied'):
-            history.append(expense)
+    history = [
+        e for e in get_current_user_expenses()
+        if e['status'] in ('approved', 'denied')
+    ]
 
     print_expense_list(history)
 
@@ -112,10 +100,7 @@ def view_history():
 
 
 def edit_or_delete_pending_expense(action):
-    pending = []
-    for expense in get_current_user_expenses():
-        if expense['status'] == 'pending':
-            pending.append(expense)
+    pending = get_current_user_expenses(status="pending")
 
     if not pending:
         print("\nNo pending expenses to modify.")
@@ -139,7 +124,11 @@ def edit_or_delete_pending_expense(action):
 
     expense_id_prefix = target_expense['id'][:8]
 
-    if action == 'edit':
+    if action == "edit":
+        new_amount = None
+        new_description = None
+        new_category = None
+
         while True:
             new_amount_input = input(
                 f"Enter new amount (current: ${target_expense['amount']:.2f}, leave blank to skip): $"
@@ -149,41 +138,51 @@ def edit_or_delete_pending_expense(action):
                 break
 
             try:
-                new_amount = float(new_amount_input)
-                if new_amount <= 0:
+                amount_val = float(new_amount_input)
+                if amount_val <= 0:
                     print("Amount must be a positive number.")
                     continue
-                target_expense['amount'] = new_amount
-                logger.info(
-                    "Updated amount for expense %s to %.2f", target_expense['id'], new_amount
-                )
+                new_amount = amount_val
                 break
             except ValueError:
                 print("Invalid input. Please enter a valid number.")
 
-        while True:
-            new_desc = input(
-                f"Enter new description (current: {target_expense['description']}, leave blank to skip): "
-            ).strip()
+        new_desc = input(
+            f"Enter new description (current: {target_expense['description']}, leave blank to skip): "
+        ).strip()
+        if new_desc:
+            new_description = new_desc
 
-            if not new_desc:
-                break
+        new_cat = input(
+            f"Enter new category (current: {target_expense.get('category', 'Uncategorized')}, leave blank to skip): "
+        ).strip()
+        if new_cat:
+            new_category = new_cat
 
-            target_expense['description'] = new_desc
-            logger.info("Updated description for expense %s", target_expense['id'])
-            break
+        updated = db.update_pending_expense(
+            target_expense['id'],
+            auth.CURRENT_USER_ID,
+            amount=new_amount,
+            description=new_description,
+            category=new_category,
+        )
 
-        print(f"\n✅ Expense {expense_id_prefix} updated successfully.")
-        db.save_data()
-        logger.info("Expense %s saved after edit", target_expense['id'])
+        if updated:
+            print(f"\n-> Expense {expense_id_prefix} updated successfully.")
+            logger.info("Expense %s saved after edit", target_expense['id'])
+        else:
+            print("\nUpdate failed. Expense may no longer be pending.")
+            logger.warning("Expense %s not updated (no longer pending?)", target_expense['id'])
 
-    elif action == 'delete':
-        if input(f"Are you sure you want to DELETE expense {expense_id_prefix}? (yes/no): ").lower() == 'yes':
-            db.EXPENSES.remove(target_expense)
-
-            print(f"\n✅ Expense {expense_id_prefix} deleted successfully.")
-            db.save_data()
-            logger.info("Expense %s deleted", target_expense['id'])
+    elif action == "delete":
+        if input(f"Are you sure you want to DELETE expense {expense_id_prefix}? (yes/no): ").lower() == "yes":
+            deleted = db.delete_pending_expense(target_expense['id'], auth.CURRENT_USER_ID)
+            if deleted:
+                print(f"\n-> Expense {expense_id_prefix} deleted successfully.")
+                logger.info("Expense %s deleted", target_expense['id'])
+            else:
+                print("\nDeletion failed. Expense may no longer be pending.")
+                logger.warning("Expense %s not deleted (no longer pending?)", target_expense['id'])
         else:
             print("Deletion cancelled.")
             logger.info("Deletion cancelled for expense %s", target_expense['id'])

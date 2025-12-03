@@ -7,6 +7,7 @@ import com.revature.manager.service.ExpenseService;
 import com.revature.manager.utils.InputValidator;
 import com.revature.manager.exceptions.ValidationException;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
@@ -41,7 +42,9 @@ public class Menu {
                     case "3" -> updateExpense(scanner, manager, false);
                     case "4" -> reportByUser(scanner);
                     case "5" -> reportByStatus(scanner);
-                    case "6" -> running = false;
+                    case "6" -> reportByCategory(scanner);
+                    case "7" -> reportByDateRange(scanner);
+                    case "8" -> running = false;
                     default -> System.out.println("Invalid choice. Try again.");
                 }
             }
@@ -55,7 +58,9 @@ public class Menu {
         System.out.println("3. Deny an Expense");
         System.out.println("4. Report by User");
         System.out.println("5. Report by Status");
-        System.out.println("6. Exit");
+        System.out.println("6. Report by Category");
+        System.out.println("7. Report by Date Range");
+        System.out.println("8. Exit");
         System.out.print("Enter choice: ");
     }
 
@@ -127,7 +132,46 @@ public class Menu {
             InputValidator.requireStatus(status);
             List<Expense> expenses = expenseService.listExpensesByStatus(status);
             if (expenses.isEmpty()) {
-                System.out.println("No expenses found with status " + status + ".");
+            System.out.println("No expenses found with status " + status + ".");
+            return;
+        }
+        printExpenses(expenses, false);
+    } catch (ValidationException e) {
+        System.out.println(e.getMessage());
+    }
+}
+
+    private void reportByCategory(Scanner scanner) {
+        System.out.print("\nEnter category: ");
+        String category = scanner.nextLine().trim();
+        try {
+            InputValidator.requireNonEmpty(category, "Category");
+            List<Expense> expenses = expenseService.listExpensesByCategory(category);
+            if (expenses.isEmpty()) {
+                System.out.println("No expenses found in category " + category + ".");
+                return;
+            }
+            printExpenses(expenses, false);
+        } catch (ValidationException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    private void reportByDateRange(Scanner scanner) {
+        System.out.print("\nEnter start date (YYYY-MM-DD): ");
+        String start = scanner.nextLine().trim();
+        System.out.print("Enter end date (YYYY-MM-DD): ");
+        String end = scanner.nextLine().trim();
+        try {
+            LocalDate startDate = InputValidator.parseIsoDate(start, "Start date");
+            LocalDate endDate = InputValidator.parseIsoDate(end, "End date");
+            if (endDate.isBefore(startDate)) {
+                System.out.println("End date cannot be before start date.");
+                return;
+            }
+            List<Expense> expenses = expenseService.listExpensesByDateRange(startDate.toString(), endDate.toString());
+            if (expenses.isEmpty()) {
+                System.out.println("No expenses found in that date range.");
                 return;
             }
             printExpenses(expenses, false);
@@ -137,13 +181,14 @@ public class Menu {
     }
 
     private void printExpenses(List<Expense> expenses, boolean showIndex) {
-        String line = "--------------------------------------------------------------------------------------------------------------";
+        String line = "---------------------------------------------------------------------------------------------------------------------------------";
         System.out.println("\n" + line);
         System.out.printf(
-            "| %3s | %-8s | %-10s | %-10s | %-10s | %-10s | %-20s | %-15s |%n",
+            "| %3s | %-8s | %-10s | %-12s | %-10s | %-10s | %-12s | %-20s | %-15s |%n",
             showIndex ? "NUM" : "",
             "ID",
             "User",
+            "Category",
             "Amount",
             "Date",
             "Status",
@@ -156,10 +201,11 @@ public class Menu {
             String comment = e.getComment() != null ? truncate(e.getComment(), 15) : "-";
             String userLabel = e.getUsername() != null ? e.getUsername() : e.getUserId();
             System.out.printf(
-                "| %3s | %-8s | %-10s | $%-8.2f | %-10s | %-10s | %-20s | %-15s |%n",
+                "| %3s | %-8s | %-10s | %-12s | $%-8.2f | %-10s | %-10s | %-20s | %-15s |%n",
                 showIndex ? i : "",
                 e.getId().substring(0, Math.min(8, e.getId().length())),
                 userLabel,
+                truncate(e.getCategory(), 12),
                 e.getAmount(),
                 e.getDate(),
                 e.getStatus(),

@@ -8,3 +8,8 @@ __pycache__/
 # Java/Maven
 **/target/
 *.class
+
+# ExpenseManagerProject
+ExpenseManagerProject/.tools/
+ExpenseManagerProject/PROJECT_EXPLAINER.txt
+ExpenseManagerProject/manager-app/manager_app.log.lck

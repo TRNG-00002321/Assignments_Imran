@@ -11,7 +11,7 @@ CURRENT_USER_ID = None
 def login():
     global CURRENT_USER, CURRENT_USER_ID
 
-    if not db.USERS:
+    if not db.users_exist():
         print("\nFATAL ERROR: No user accounts found in database. Cannot log in.")
         logger.error("Login failed: no users found in database")
         return False
@@ -21,11 +21,7 @@ def login():
     username = input("Username: ").strip()
     logger.info("Login attempt for username %s", username)
 
-    target_user = None
-    for user in db.USERS:
-        if user['username'] == username:
-            target_user = user
-            break
+    target_user = db.get_user_by_username(username)
 
     if target_user is None:
         print("Login failed: Username incorrect or user not found.")

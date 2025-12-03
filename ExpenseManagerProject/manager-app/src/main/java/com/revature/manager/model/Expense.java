@@ -4,6 +4,7 @@ public class Expense {
     private final String id;
     private final String userId;
     private final String username;
+    private final String category;
     private final double amount;
     private final String description;
     private final String date;
@@ -16,6 +17,7 @@ public class Expense {
         String id,
         String userId,
         String username,
+        String category,
         double amount,
         String description,
         String date,
@@ -27,6 +29,7 @@ public class Expense {
         this.id = id;
         this.userId = userId;
         this.username = username;
+        this.category = category;
         this.amount = amount;
         this.description = description;
         this.date = date;
@@ -46,6 +49,10 @@ public class Expense {
 
     public String getUsername() {
         return username;
+    }
+
+    public String getCategory() {
+        return category;
     }
 
     public double getAmount() {

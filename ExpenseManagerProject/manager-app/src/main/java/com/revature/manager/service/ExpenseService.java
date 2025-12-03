@@ -25,7 +25,7 @@ public class ExpenseService {
     }
 
     public boolean approveExpense(String expenseId, User reviewer, String comment) {
-        boolean updated = expenseDao.updateStatus(expenseId, "approved", reviewer.getUsername(), comment);
+        boolean updated = expenseDao.updateStatus(expenseId, "approved", reviewer.getId(), comment);
         if (updated) {
             logger.info("Approved expense " + expenseId + " by " + reviewer.getUsername());
         }
@@ -33,7 +33,7 @@ public class ExpenseService {
     }
 
     public boolean denyExpense(String expenseId, User reviewer, String comment) {
-        boolean updated = expenseDao.updateStatus(expenseId, "denied", reviewer.getUsername(), comment);
+        boolean updated = expenseDao.updateStatus(expenseId, "denied", reviewer.getId(), comment);
         if (updated) {
             logger.info("Denied expense " + expenseId + " by " + reviewer.getUsername());
         }
@@ -46,6 +46,14 @@ public class ExpenseService {
 
     public List<Expense> listExpensesByStatus(String status) {
         return expenseDao.listByStatus(status);
+    }
+
+    public List<Expense> listExpensesByCategory(String category) {
+        return expenseDao.listByCategory(category);
+    }
+
+    public List<Expense> listExpensesByDateRange(String startDateInclusive, String endDateInclusive) {
+        return expenseDao.listByDateRange(startDateInclusive, endDateInclusive);
     }
 
     public Optional<User> findUserByUsername(String username) {

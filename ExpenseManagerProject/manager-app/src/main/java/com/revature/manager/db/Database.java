@@ -42,6 +42,7 @@ public class Database {
                 CREATE TABLE IF NOT EXISTS expenses (
                     id TEXT PRIMARY KEY,
                     user_id TEXT NOT NULL,
+                    category TEXT NOT NULL,
                     amount REAL NOT NULL,
                     description TEXT NOT NULL,
                     date TEXT NOT NULL,
@@ -50,6 +51,25 @@ public class Database {
                     comment TEXT,
                     review_date TEXT,
                     FOREIGN KEY (user_id) REFERENCES users(id)
+                );
+            """);
+
+            // Backfill category column for older databases that predate it
+            try {
+                stmt.execute("ALTER TABLE expenses ADD COLUMN category TEXT DEFAULT 'Uncategorized'");
+            } catch (SQLException e) {
+                logger.fine("Category column already exists on expenses table");
+            }
+
+            stmt.execute("""
+                CREATE TABLE IF NOT EXISTS approvals (
+                    id TEXT PRIMARY KEY,
+                    expense_id TEXT NOT NULL,
+                    status TEXT NOT NULL,
+                    reviewer TEXT,
+                    comment TEXT,
+                    review_date TEXT NOT NULL,
+                    FOREIGN KEY (expense_id) REFERENCES expenses(id)
                 );
             """);
 

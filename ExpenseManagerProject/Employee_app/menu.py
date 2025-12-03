@@ -1,7 +1,6 @@
 import logging
 
 import auth
-import db
 import expenses
 
 logger = logging.getLogger(__name__)
@@ -22,7 +21,6 @@ def employee_menu():
 
         if choice == '1':
             expenses.submit_new_expense()
-            db.save_data()
         elif choice == '2':
             expenses.view_expense_status()
         elif choice == '3':

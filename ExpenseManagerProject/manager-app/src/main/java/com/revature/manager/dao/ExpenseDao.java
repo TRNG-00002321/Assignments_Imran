@@ -10,6 +10,7 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -36,19 +37,56 @@ public class ExpenseDao {
         return queryExpenses(sql, status);
     }
 
+    public List<Expense> listByCategory(String category) {
+        String sql = baseExpenseSelect() + " WHERE lower(e.category) = lower(?) ORDER BY e.date DESC";
+        return queryExpenses(sql, category);
+    }
+
+    public List<Expense> listByDateRange(String startDateInclusive, String endDateInclusive) {
+        String sql = baseExpenseSelect() + " WHERE e.date BETWEEN ? AND ? ORDER BY e.date ASC";
+        return queryExpenses(sql, startDateInclusive, endDateInclusive);
+    }
+
     public boolean updateStatus(String expenseId, String status, String reviewer, String comment) {
         String sql = """
             UPDATE expenses
             SET status = ?, reviewer = ?, comment = ?, review_date = ?
             WHERE id = ?
         """;
-        try (Connection conn = database.getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, status);
-            ps.setString(2, reviewer);
-            ps.setString(3, comment);
-            ps.setString(4, LocalDate.now().toString());
-            ps.setString(5, expenseId);
-            int rows = ps.executeUpdate();
+        String approvalSql = """
+            INSERT INTO approvals (id, expense_id, status, reviewer, comment, review_date)
+            VALUES (?, ?, ?, ?, ?, ?)
+        """;
+        try (Connection conn = database.getConnection();
+             PreparedStatement updateExpense = conn.prepareStatement(sql);
+             PreparedStatement insertApproval = conn.prepareStatement(approvalSql)) {
+
+            conn.setAutoCommit(false);
+
+            String reviewDate = LocalDate.now().toString();
+            updateExpense.setString(1, status);
+            updateExpense.setString(2, reviewer);
+            updateExpense.setString(3, comment);
+            updateExpense.setString(4, reviewDate);
+            updateExpense.setString(5, expenseId);
+            int rows = updateExpense.executeUpdate();
+
+            if (rows == 0) {
+                conn.rollback();
+                conn.setAutoCommit(true);
+                return false;
+            }
+
+            insertApproval.setString(1, UUID.randomUUID().toString());
+            insertApproval.setString(2, expenseId);
+            insertApproval.setString(3, status);
+            insertApproval.setString(4, reviewer);
+            insertApproval.setString(5, comment);
+            insertApproval.setString(6, reviewDate);
+            insertApproval.executeUpdate();
+
+            conn.commit();
+            conn.setAutoCommit(true);
             return rows > 0;
         } catch (SQLException e) {
             logger.log(Level.SEVERE, "Failed to update expense " + expenseId, e);
@@ -59,7 +97,7 @@ public class ExpenseDao {
     private String baseExpenseSelect() {
         return """
             SELECT e.id, e.user_id, e.amount, e.description, e.date, e.status,
-                   e.reviewer, e.comment, e.review_date, u.username
+                   e.reviewer, e.comment, e.review_date, e.category, u.username
             FROM expenses e
             LEFT JOIN users u ON e.user_id = u.id
         """;
@@ -87,6 +125,7 @@ public class ExpenseDao {
             rs.getString("id"),
             rs.getString("user_id"),
             rs.getString("username"),
+            rs.getString("category"),
             rs.getDouble("amount"),
             rs.getString("description"),
             rs.getString("date"),
