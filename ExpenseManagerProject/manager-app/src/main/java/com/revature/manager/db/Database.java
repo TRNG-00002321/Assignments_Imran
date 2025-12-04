@@ -54,7 +54,7 @@ public class Database {
                 );
             """);
 
-            // Backfill category column for older databases that predate it
+            
             try {
                 stmt.execute("ALTER TABLE expenses ADD COLUMN category TEXT DEFAULT 'Uncategorized'");
             } catch (SQLException e) {

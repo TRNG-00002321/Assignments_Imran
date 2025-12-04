@@ -46,7 +46,6 @@ def init_db():
     try:
         cur.execute("ALTER TABLE expenses ADD COLUMN category TEXT DEFAULT 'Uncategorized'")
     except sqlite3.OperationalError:
-        # Column already exists on upgraded databases
         pass
 
     cur.execute("""
@@ -78,7 +77,10 @@ def users_exist():
 def get_user_by_username(username):
     conn = get_connection()
     cur = conn.cursor()
-    cur.execute("SELECT id, username, password, role FROM users WHERE username = ?", (username,))
+    cur.execute(
+        "SELECT id, username, password, role FROM users WHERE LOWER(username) = LOWER(?)",
+        (username,),
+    )
     row = cur.fetchone()
     conn.close()
     if row:
